@@ -1,55 +1,66 @@
-// create web server
-// 1. create app
-// 2. create server
-// 3. listen to port 3000
-
+// Create web server
 const express = require('express');
 const app = express();
-const path = require('path');
-const fs = require('fs');
-const bodyParser = require('body-parser');
-const { response } = require('express');
-const { json } = require('body-parser');
 const port = 3000;
+const bodyParser = require('body-parser');
 
-// app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Load the comments
+const comments = require('./comments.json');
 
+// Path: /comments
+// Method: GET
+// Get all comments
 app.get('/comments', (req, res) => {
-    fs.readFile(path.join(__dirname, 'comments.json'), 'utf8', (err, data) => {
-        if (err) {
-            throw err;
-        }
-        res.send(data);
-    });
+  res.json(comments);
 });
 
+// Path: /comments
+// Method: POST
+// Add a comment
 app.post('/comments', (req, res) => {
-    fs.readFile(path.join(__dirname, 'comments.json'), 'utf8', (err, data) => {
-        if (err) {
-            throw err;
-        }
-        const comments = JSON.parse(data);
-        comments.push({
-            id: comments.length + 1,
-            name: req.body.name,
-            comment: req.body.comment
-        });
+  const comment = req.body;
 
-        fs.writeFile(path.join(__dirname, 'comments.json'), JSON.stringify(comments), (err) => {
-            if (err) {
-                throw err;
-            }
-            res.send('Comment added successfully');
-        });
-    });
+  comments.push(comment);
+  res.json(comment);
+});
+
+// Path: /comments/:id
+// Method: GET
+// Get a comment by ID
+app.get('/comments/:id', (req, res) => {
+  const id = req.params.id;
+  const comment = comments[id];
+
+  if (comment) {
+    res.json(comment);
+  } else {
+    res.status(404).send();
+  }
+});
+
+// Path: /comments/:id
+// Method: PUT
+// Update a comment by ID
+app.put('/comments/:id', (req, res) => {
+  const id = req.params.id;
+  const comment = req.body;
+
+  comments[id] = comment;
+  res.json(comment);
+});
+
+// Path: /comments/:id
+// Method: DELETE
+// Delete a comment by ID
+app.delete('/comments/:id', (req, res) => {
+  const id = req.params.id;
+
+  comments.splice(id, 1);
+  res.status(204).send();
 });
 
 app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+  console.log(`Server is listening at http://localhost:${port}`);
 });
