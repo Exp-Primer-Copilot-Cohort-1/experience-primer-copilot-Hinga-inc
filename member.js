@@ -1,13 +1,11 @@
 function skillsMember() {
-  const members = [
-    {
-      name: "John",
-      skills: ["JavaScript", "React", "Node"],
-    },
-    {
-      name: "Jane",
-      skills: ["Python", "Django", "Flask"],
-    },
-  ];
-  return members;
+    var path = window.location.pathname;
+    if (path == "/member") {
+        var skills = document.getElementsByClassName("skills");
+        for (var i = 0; i < skills.length; i++) {
+            if (skills[i].textContent == "N/A") {
+                skills[i].style.color = "red";
+            }
+        }
+    }
 }
